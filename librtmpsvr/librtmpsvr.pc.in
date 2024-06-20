@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+incdir=${prefix}/include
+
+Name: librtmpsvr
+Description: RTMP server implementation
+Version: @VERSION@
+Requires: @CRYPTO_REQ@
+Libs: -L${libdir} -lrtmpsvr -lz
+Cflags: -I${incdir}

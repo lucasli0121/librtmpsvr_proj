@@ -1,0 +1,7 @@
+
+本文档实现RTMP协议服务端，采用librtmp库。本项目是一个lib库，采用回调函数给外部调用者提供推送的视频，按照每帧回调返回
+
+
+This document implements the RTMP protocol server and uses the librtmp library.
+This project is a lib library, which uses callback functions to provide pushed videos to external callers,
+ and returns them according to the callback per frame
