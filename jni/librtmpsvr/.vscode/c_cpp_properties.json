@@ -1,13 +1,11 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "linux-gcc-x64",
             "includePath": [
                 "${workspaceFolder}/**",
-                "D:\\msys64\\mingw64\\include",
-                "D:\\msys64\\usr\\include",
-                "D:\\msys64\\usr\\local\\include",
-                "D:\\msys64\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\13.2.0\\include"
+                "/usr/include",
+                "/usr/local/include"
             ],
             "defines": [
                 "_DEBUG",

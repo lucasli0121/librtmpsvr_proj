@@ -9,7 +9,7 @@
  * Author: liguoqiang
  * Date: 2023-12-22 15:14:00
  * LastEditors: liguoqiang
- * LastEditTime: 2024-06-12 14:39:16
+ * LastEditTime: 2024-07-23 14:34:39
  * Description: RTMP Server
  * 根据原librtmp种的rtmpsrv修改
  * 1. 去掉了对rtmpdump的依赖
@@ -88,6 +88,7 @@ static RTMP_STREAM *rtmpStream = 0;
 static VideoCallbackFunc videoFunc = 0;
 static AudioCallbackFunc audioFunc = 0;
 static BeginPublishFunc _beginPublishFunc = 0;
+static ExitPublishThreadFunc _exitPublishThreadFunc = 0;
 static SpsPpsCallbackFunc _spsPpsFunc = 0;
 
 int getRtmpMetaData(char** data)
@@ -157,6 +158,7 @@ static TFTYPE serverThread(void* v)
         rtmpStream->videoFunc = videoFunc;
         rtmpStream->audioFunc = audioFunc;
         rtmpStream->beginPublishFunc = _beginPublishFunc;
+        rtmpStream->exitPublishThreadFunc = _exitPublishThreadFunc;
         rtmpStream->spsPpsFunc = _spsPpsFunc;
       }
     } else {
@@ -314,6 +316,16 @@ void setRtmpBeginPublishCallback(BeginPublishFunc func, void* user_data)
     rtmpStream->beginPublishFunc = func;
     rtmpStream->user_data = user_data;
   }
+}
+void setExitPublishThreadCallback(ExitPublishThreadFunc exitPublishThreadFunc, void *user_data)
+{
+  if(rtmpStream == 0) {
+    _exitPublishThreadFunc = exitPublishThreadFunc;
+  } else {
+    rtmpStream->exitPublishThreadFunc = exitPublishThreadFunc;
+    rtmpStream->user_data = user_data;
+  }
+
 }
 void setRtmpSpsPpsCallback(SpsPpsCallbackFunc spsPpsFunc, void *user_data)
 {

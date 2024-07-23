@@ -2,7 +2,7 @@
  * Author: liguoqiang
  * Date: 2023-12-24 09:10:18
  * LastEditors: liguoqiang
- * LastEditTime: 2024-06-12 14:35:42
+ * LastEditTime: 2024-07-23 10:56:27
  * Description: 
 ********************************************************************************/
 #include "librtmp/log.h"
@@ -1246,6 +1246,9 @@ static TFTYPE readPacketThread(void* v)
   }
   rtmpStream->state = STREAMING_STOPPING;
   RTMP_Close(rtmp);
+  if(rtmpStream->exitPublishThreadFunc) {
+    rtmpStream->exitPublishThreadFunc(rtmpStream->user_data);
+  }
   RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "%s, readPacketThread exit, state=STREAMING_STOPPING RTMP_Close ", __FUNCTION__);
   return TFRET();
 }
