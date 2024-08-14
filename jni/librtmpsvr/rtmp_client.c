@@ -2,7 +2,7 @@
  * Author: liguoqiang
  * Date: 2024-01-16 10:19:41
  * LastEditors: liguoqiang
- * LastEditTime: 2024-05-17 21:48:54
+ * LastEditTime: 2024-08-04 23:38:25
  * Description: 
 ********************************************************************************/
 #include "rtmp_client.h"
@@ -273,7 +273,7 @@ static TFTYPE clientStreamThread(void* v)
 #ifdef ANDROID
     int64_t cores = sysconf(_SC_NPROCESSORS_CONF);
     RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "CPUS: %lu\n", cores);
-    bindToCpu(cores - 1);
+    bindToCpu(cores - 2);
 #elif defined(linux)
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);

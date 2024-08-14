@@ -2,7 +2,7 @@
  * Author: liguoqiang
  * Date: 2023-12-24 09:10:18
  * LastEditors: liguoqiang
- * LastEditTime: 2024-07-23 10:56:27
+ * LastEditTime: 2024-08-04 23:44:21
  * Description: 
 ********************************************************************************/
 #include "librtmp/log.h"
@@ -1233,16 +1233,40 @@ static TFTYPE readPacketThread(void* v)
   RTMP_STREAM * rtmpStream = (RTMP_STREAM*)v;
   RTMPPacket packet = {0};
   RTMP *rtmp = rtmpStream->rtmp;
+#ifdef ANDROID
+    int64_t cores = sysconf(_SC_NPROCESSORS_CONF);
+    RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "CPUS: %lu\n", cores);
+    bindToCpu(cores - 1);
+#elif defined(linux)
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+    for (int i = 0; i < __CPU_SETSIZE; i++) {
+        if(CPU_ISSET(i, &cpuset)) {
+            RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "thread is running in cpu %d\n", i);
+        }
+    }
+#endif
   while (rtmpStream->state == STREAMING_IN_PROGRESS
-    && RTMP_IsConnected(rtmp)
-    && (RTMP_ReadPacket(rtmp, &packet)) )
+    && RTMP_IsConnected(rtmp) )
   {
+    
+    uint32_t v1 = RTMP_GetTime();
+
+    if (RTMP_ReadPacket(rtmp, &packet) == 0) {
+      RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "%s, RTMP_ReadPacket failed", __FUNCTION__);
+      break;
+    }
+    uint32_t v2 = RTMP_GetTime();
+    RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "%s, RTMP_ReadPacket read data from socket time %d", __FUNCTION__, v2 - v1);
     if (!RTMPPacket_IsReady(&packet))
       continue;
+    
     ServePacket(rtmpStream, rtmp, &packet);
-    RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "%s, RTMPPacket_Free ", __FUNCTION__);
     RTMPPacket_Free(&packet);
-    sleep_m(1);
+    uint32_t v3 = RTMP_GetTime();
+    RTMP_Log(rtmp->logCtx, RTMP_LOGDEBUG, "%s, handle ServePacket time %d", __FUNCTION__, v3 - v2);
+    // sleep_m(1);
   }
   rtmpStream->state = STREAMING_STOPPING;
   RTMP_Close(rtmp);
